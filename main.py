@@ -51,7 +51,7 @@ def system_prompt(from_lang, to_lang):
 
 def translate_chunk(client, text, from_lang='EN', to_lang='PL'):
     response = client.chat.completions.create(
-        model='gpt-4-1106-preview',
+        model='gpt-4o',
         temperature=0.2,
         messages=[
             { 'role': 'system', 'content': system_prompt(from_lang, to_lang) },
@@ -65,7 +65,7 @@ def translate_chunk(client, text, from_lang='EN', to_lang='PL'):
 
 def translate_text(client, text, from_lang='EN', to_lang='PL'):
     translated_chunks = []
-    chunks = split_html_by_sentence(text)
+    chunks = split_html_by_sentence(text,10000)
 
     for i, chunk in enumerate(chunks):
         print("\tTranslating chunk %d/%d..." % (i+1, len(chunks)))
