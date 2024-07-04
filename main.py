@@ -6,6 +6,7 @@ import os
 import json
 import requests
 import ebooklib
+import tiktoken
 from ebooklib import epub
 from bs4 import BeautifulSoup
 from openai import OpenAI
@@ -16,22 +17,29 @@ def read_config(config_file):
     return config
 
 def split_html_by_sentence(html_str, max_chunk_size=2000):
+    tokenizer = tiktoken.encoding_for_model("gpt-4o")
+    
     sentences = html_str.split('. ')
     chunks = []
     current_chunk = ""
 
     for sentence in sentences:
-        if len(current_chunk) + len(sentence) > max_chunk_size:
+        # Calculate the token count of the current chunk and the new sentence
+        current_chunk_tokens = len(tokenizer.encode(current_chunk))
+        sentence_tokens = len(tokenizer.encode(sentence))
+
+        if current_chunk_tokens + sentence_tokens > max_chunk_size:
             chunks.append(current_chunk)
             current_chunk = sentence
         else:
-            current_chunk += '. '
+            if current_chunk:
+                current_chunk += '. '
             current_chunk += sentence
     
     if current_chunk:
         chunks.append(current_chunk)
 
-    # Remove dot from the beginning of first chunk
+    # Remove dot from the beginning of the first chunk
     if chunks and chunks[0].startswith('. '):
         chunks[0] = chunks[0][2:]
 
@@ -40,7 +48,6 @@ def split_html_by_sentence(html_str, max_chunk_size=2000):
         chunks[i] += '.'
 
     return chunks
-
 def system_prompt(from_lang, to_lang):
     p  = "You are an %s-to-%s translator. " % (from_lang, to_lang)
     p += "Keep all special characters and HTML tags as in the source text. Return only %s translation." % to_lang
