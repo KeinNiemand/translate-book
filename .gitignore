@@ -2,3 +2,5 @@ config.yaml
 config.yml
 books/
 .DS_Store
+*.jsonl
+translate_checkpoint.yml
