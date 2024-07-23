@@ -48,10 +48,12 @@ def split_html_by_sentence(html_str, max_chunk_size=2000):
         chunks[i] += '.'
 
     return chunks
-def system_prompt(from_lang, to_lang):
-    p  = "You are an %s-to-%s translator. " % (from_lang, to_lang)
-    p += "Keep all special characters and HTML tags as in the source text. Return only %s translation." % to_lang
-    return p
+    p = (
+        f"You are a professional translator specializing in translating novels from {from_lang} to {to_lang}. "
+        f"Your goal is to create a natural and fluent translation that preserves the meaning, tone, and style of the original text. "
+        "Feel free to reorganize sentences and paragraphs if it improves the readability and flow in the target language. "
+        "However, maintain important formatting elements such as chapter titles, italics, and bold text."
+    )
 
 def create_batch_file(chunks, batch_file_path, from_lang, to_lang):
     with open(batch_file_path, 'w') as batch_file:
@@ -248,7 +250,7 @@ if __name__ == "__main__":
         to_lang = args.to_lang
         openai_client = OpenAI(api_key=config['openai']['api_key'])
 
-        translate(openai_client, args.input, args.output, args.from_chapter, args.to_chapter, from_lang, to_lang)
+        translate(openai_client, args.input, args.output, args.from_chapter-1, args.to_chapter-1, from_lang, to_lang)
 
     elif args.mode == 'show-chapters':
         show_chapters(args.input)
